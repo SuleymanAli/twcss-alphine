@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vite App</title>
+    <link rel="stylesheet" href="./assets/style.scss" />
+    <script defer src="./assets/js/alpine.min.js"></script>
+  </head>
+  <body>
+    <form
+      x-data="contactForm()"
+      @submit.prevent="submit"
+      class="w-screen min-h-screen flex items-center justify-center font-mono"
+    >
+      <div class="w-full max-w-xs mx-auto">
+        <div class="w-full h-64 relative">
+          <div
+            x-show="data.section==1"
+            x-transition:enter="transition ease-out delay-500 duration-300"
+            x-transition:enter-start="opacity-0 scale-90"
+            x-transition:enter-end="opacity-100 scale-100"
+            x-transition:leave="transition ease-in duration-300"
+            x-transition:leave-start="opacity-100 scale-100"
+            x-transition:leave-end="opacity-0 scale-90"
+            class="absolute bg-gray-100 rounded-xl w-full h-full flex items-center justify-center text-gray-400"
+          >
+            <div>
+              <input
+                type="text"
+                class="border px-3 py-2 rounded-lg"
+                placeholder="Your Name"
+                x-model="data.name"
+                autocomplete="given-name"
+              />
+            </div>
+          </div>
+          <div
+            x-show="data.section==2"
+            x-transition:enter="transition ease-out delay-500 duration-300"
+            x-transition:enter-start="opacity-0 scale-90"
+            x-transition:enter-end="opacity-100 scale-100"
+            x-transition:leave="transition ease-in duration-300"
+            x-transition:leave-start="opacity-100 scale-100"
+            x-transition:leave-end="opacity-0 scale-90"
+            class="absolute bg-purple-100 rounded-xl w-full h-full flex items-center justify-center text-gray-400"
+          >
+            <div>
+              <input
+                type="text"
+                class="border px-3 py-2 rounded-lg"
+                placeholder="Your Best Email"
+                x-model="data.email"
+                autocomplete="email"
+              />
+            </div>
+          </div>
+          <div
+            x-show="data.section==3"
+            x-transition:enter="transition ease-out delay-500 duration-300"
+            x-transition:enter-start="opacity-0 scale-90"
+            x-transition:enter-end="opacity-100 scale-100"
+            x-transition:leave="transition ease-in duration-300"
+            x-transition:leave-start="opacity-100 scale-100"
+            x-transition:leave-end="opacity-0 scale-90"
+            class="absolute bg-green-100 rounded-xl w-full h-full flex items-center justify-center text-gray-400"
+          >
+            <div class="text-center">
+              <span x-text="response.title"></span>
+              <span x-text="response.message"></span>
+            </div>
+          </div>
+        </div>
+        <div class="py-4 flex space-x-4">
+          <button
+            @click="data.section = 1"
+            class="bg-gray-100 w-1/2 h-12 flex items-center justify-center rounded-lg"
+          >
+            Prev
+          </button>
+          <button
+            @click="handleSteps"
+            class="bg-blue-500 w-1/2 h-12 flex items-center justify-center rounded-lg text-white"
+            :disabled="loading"
+            x-text="buttonText"
+          >
+            Next
+          </button>
+        </div>
+      </div>
+    </form>
+
+    <script>
+      const FORMCARRY_ENDPOINT = 'https://formcarry.com/s/ZWNvH5PtcH'
+
+      function contactForm() {
+        return {
+          data: {
+            name: '',
+            email: '',
+            section: 1,
+          },
+          response: {},
+          buttonText: 'Next',
+          loading: false,
+          handleSteps() {
+            if (this.data.section > 2) {
+              this.data.section = 3
+            } else {
+              this.buttonText = 'Submit'
+              this.data.section++
+            }
+          },
+          submit() {
+            if (this.data.section > 2) {
+              this.buttonText = 'Submitting...'
+              this.loading = true
+              fetch(FORMCARRY_ENDPOINT, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  Accept: 'application/json',
+                },
+                body: JSON.stringify(this.data),
+              })
+                .then((res) => res.json())
+                .then((response) => {
+                  this.response = response
+                })
+                .catch((error) => {
+                  alert(error)
+                })
+                .finally(() => {
+                  setTimeout(() => {
+                    this.data.section = 1
+                    this.data.name = this.data.email = ''
+                  }, 3000)
+                  this.buttonText = 'Next'
+                  this.loading = false
+                })
+            }
+          },
+        }
+      }
+    </script>
+
+    <script type="module" src="./assets/js/main.js"></script>
+  </body>
+</html>
