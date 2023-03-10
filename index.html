@@ -13,7 +13,7 @@
       @submit.prevent="submit"
       class="w-screen min-h-screen flex items-center justify-center font-mono"
     >
-      <div class="w-full max-w-xs mx-auto">
+      <div class="w-full max-w-lg mx-auto">
         <div class="w-full h-64 relative">
           <div
             x-show="data.section==1"
@@ -25,13 +25,22 @@
             x-transition:leave-end="opacity-0 scale-90"
             class="absolute bg-gray-100 rounded-xl w-full h-full flex items-center justify-center text-gray-400"
           >
-            <div>
+            <div
+              class="flex justify-center items-center max-xs:space-y-2 xs:space-x-3 flex-wrap"
+            >
               <input
                 type="text"
                 class="border px-3 py-2 rounded-lg"
                 placeholder="Your Name"
                 x-model="data.name"
                 autocomplete="given-name"
+              />
+              <input
+                type="text"
+                class="border px-3 py-2 rounded-lg"
+                placeholder="Your Best Email"
+                x-model="data.email"
+                autocomplete="email"
               />
             </div>
           </div>
@@ -45,12 +54,14 @@
             x-transition:leave-end="opacity-0 scale-90"
             class="absolute bg-purple-100 rounded-xl w-full h-full flex items-center justify-center text-gray-400"
           >
-            <div>
+            <div class="flex flex-col w-full px-4">
+              <label for="endpoint" class="mb-2">Endpoint</label>
               <input
                 type="text"
-                class="border px-3 py-2 rounded-lg"
-                placeholder="Your Best Email"
-                x-model="data.email"
+                id="endpoint"
+                class="border px-3 py-2 rounded-lg w-full"
+                placeholder="Paste Form Carry Endpoint"
+                x-model="data.endpoint"
                 autocomplete="email"
               />
             </div>
@@ -91,14 +102,13 @@
     </form>
 
     <script>
-      const FORMCARRY_ENDPOINT = 'https://formcarry.com/s/ZWNvH5PtcH'
-
       function contactForm() {
         return {
           data: {
             name: '',
             email: '',
             section: 1,
+            endpoint: 'https://formcarry.com/s/ZWNvH5PtcH',
           },
           response: {},
           buttonText: 'Next',
@@ -115,7 +125,7 @@
             if (this.data.section > 2) {
               this.buttonText = 'Submitting...'
               this.loading = true
-              fetch(FORMCARRY_ENDPOINT, {
+              fetch(this.data.endpoint, {
                 method: 'POST',
                 headers: {
                   'Content-Type': 'application/json',
@@ -128,7 +138,8 @@
                   this.response = response
                 })
                 .catch((error) => {
-                  alert(error)
+                  this.response.title = 'Error.'
+                  this.response.message = 'Could not send the form data'
                 })
                 .finally(() => {
                   setTimeout(() => {
